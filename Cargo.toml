@@ -1,0 +1,17 @@
+[package]
+name = "terin"
+description = "a Rust library for the creation of cli applications"
+version = "0.1.0"
+edition = "2021"
+
+[package.metadata]
+title = "TerIn"
+default_argument = "test"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.5.8"
+colored = "2.0.0"
