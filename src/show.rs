@@ -1,8 +1,7 @@
+use colored::Colorize;
 use std::{io::{stdout, Write}, process::exit};
 
-use colored::Colorize;
-
-use crate::info;
+use crate::{info, args, error::Handler};
 
 const FORMAT_CHAR: char = '`';
 const ARROW_CHAR: &'static str = "❯";
@@ -15,7 +14,7 @@ pub enum Color {
     Purple
 }
 
-fn get_highlighted_text( formated_text: &str, message_color: Color ) -> String {
+fn get_highlighted_text( formated_text: &str, color: Color ) -> String {
     let mut text_string = String::from(formated_text);
  
     if text_string.matches(FORMAT_CHAR).count() % 2 != 0 {
@@ -25,7 +24,7 @@ fn get_highlighted_text( formated_text: &str, message_color: Color ) -> String {
     while text_string.matches(FORMAT_CHAR).count() > 0 {
         let words: Vec<&str> = text_string.splitn(3, FORMAT_CHAR).collect();
 
-        let highlighted_word = match message_color {
+        let highlighted_word = match color {
             Color::Green  => Colorize::green( words[1] ),
             Color::Red    => Colorize::red( words[1] ),
             Color::Yellow => Colorize::yellow( words[1] ),
@@ -38,17 +37,45 @@ fn get_highlighted_text( formated_text: &str, message_color: Color ) -> String {
     text_string
 }
 
-fn show_message( message: &str, message_color: Color, print_newline: bool ) {
+fn show_message( message: &str, color: Color, print_newline: bool ) {
     let message = format!("{}", message);
-    let formatted_message = get_highlighted_text(&message, message_color);
+    let formatted_message = get_highlighted_text(&message, color);
 
     print!("{}", formatted_message);
 
-    stdout().flush().unwrap(); //HANDLE // Flush to print immedialty
+    stdout().flush().handle(); // Flush to print immedialty
 
     if print_newline {
         println!();
     }
+}
+
+pub fn alert( message: &str ) {
+    let pointer = format!("{} {}", "Error", ARROW_CHAR);
+
+    show_message( &format!("`{}` {}", pointer.bold(), message), Color::Red, true );
+}
+
+pub fn warning( message: &str ) {
+    let pointer = format!("{} {}", "Warning", ARROW_CHAR);
+
+    show_message( &format!("`{}` {}", pointer.bold(), message), Color::Yellow, true );
+}
+
+pub fn information( label: &str, message: &str, color: Color ) {
+    let pointer = format!("{} {}", label, ARROW_CHAR);
+
+    show_message( &format!("`{}` {}", pointer.bold(), message), color, true );
+}
+
+pub fn data( message: &str, color: Color ) {
+    let pointer = format!("\t{}", ARROW_CHAR);
+
+    show_message( &format!("`{}` {}", pointer.bold(), message), color, true );
+}
+
+pub fn title( title: &str, color: Color ) {
+    show_message( &format!("`{}`", title.bold()), color, true );
 }
 
 pub fn help( options: Vec<String> ) {
@@ -80,22 +107,20 @@ pub fn help( options: Vec<String> ) {
     show_message(&usage_message, Color::Red, true);
     show_message(&options_message, Color::Purple, true);
 
-    println!("AAA {:?}", options);
+    for option in &args::Option::from(&options) {
+        let tabs = match option.long.chars().count() {
+            0..=7 => "\t\t\t", 
+            8..=16 => "\t\t",
+            _ => "\t",
+        };
 
-    // for flag in arguments::OPTIONS {
-    //     let tabs = match flag.long.chars().count() {
-    //         0..=8 => "\t\t\t", 
-    //         9..=16 => "\t\t",
-    //         _ => "\t",
-    //     };
-
-    //     println!( "  {short}, {long}{tabs}{description}",
-    //         short = format!("-{}", flag.short).bold(),
-    //         long = format!("--{}", flag.long).bold(),
-    //         tabs = tabs,
-    //         description = flag.description,
-    //     );
-    // }
+        println!( "  {short}, {long}{tabs}{description}",
+            short = format!( "-{}", option.short ).bold(),
+            long = format!( "--{}", option.long ).bold(),
+            tabs = tabs,
+            description = option.description,
+        );
+    }
 
     exit(0)
 }

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-//use crate::error::Handler;
+use crate::error::Handler;
 
 #[derive(Deserialize, Clone)]
 pub struct Metadata {
@@ -23,7 +23,7 @@ pub struct Cargo {
 
 pub fn get() -> Package {
     let cargo_string = String::from_utf8_lossy( include_bytes!("../Cargo.toml") );
-    let cargo: Cargo = toml::from_str(&cargo_string).unwrap(); // HANDLE
+    let cargo: Cargo = toml::from_str(&cargo_string).handle();
 
     cargo.package
 }

@@ -2,6 +2,41 @@ use std::env;
 
 use serde::{Serialize, de::DeserializeOwned};
 
+use crate::error;
+
+pub struct Option {
+    pub long: String,
+    pub short: char,
+    pub description: String
+}
+
+impl Option {
+    pub fn new( field_name: String, field_names: &Vec<String> ) -> Self {
+        let char = get_char_from_field_name(field_name.clone(), field_names);
+        let description = match field_name.clone().as_str() {
+            "help" => String::from("Show this help message"),
+            "version" => String::from("Show application version"),
+            _ => String::from("description (TODO)")
+        };
+
+        Self {
+            long: field_name,
+            short: char,
+            description
+        }
+    }
+
+    pub fn from( field_names: &Vec<String> ) -> Vec<Self> {
+        let mut options = Vec::new();
+
+        for field_name in field_names {
+            options.push( Self::new(field_name.clone(), field_names) )
+        }
+
+        options
+    }
+}
+
 fn get_struct_fields( serialized_struct: String ) -> Vec<String> {
     let value: serde_json::Value = serde_json::from_str(&serialized_struct).unwrap();
     let keys: Vec<String> = value.as_object().unwrap().keys().map( |k| k.clone() ).collect();
@@ -19,29 +54,37 @@ fn get_options_from_struct( serialized_struct: String ) -> Vec<String> {
     for key in value.as_object().unwrap().keys() {
         options.push( key.clone().replace("_", "-") );
     }
-    //let keys: Vec<String> = value.as_object().unwrap().keys().map( |k| k.clone() ).collect();
 
     options
 }
 
-fn get_char_from_option( option: String, options: Vec<String> ) -> char {
-    if option == "help" {
+pub fn get_char_from_field_name( field_name: String, field_names: &Vec<String> ) -> char {
+    if field_name == "help" {
         return 'h';
-    } else if option == "version" {
+    } else if field_name == "version" {
         return 'V';
     }
 
-    if !options.contains( &option.chars().nth(0).unwrap().to_string() ) {
-        return option.chars().nth(0).unwrap();
+    let mut names_with_same_start = Vec::new();
 
-    } else {
-        if !options.contains( &option.chars().nth(0).unwrap().to_ascii_uppercase().to_string() ) {
-            return option.chars().nth(0).unwrap().to_ascii_uppercase();
-
-        } else {
-            panic!("Too many")
+    for name in field_names {
+        if field_name.chars().nth(0).unwrap() == name.chars().nth(0).unwrap() {
+            names_with_same_start.push( name.clone() )
         }
     }
+
+    if names_with_same_start.len() == 1 {
+        return field_name.chars().nth(0).unwrap();
+
+    } else if names_with_same_start.len() == 2 {
+        if field_name == names_with_same_start[0] {
+            return field_name.chars().nth(0).unwrap();
+        } else {
+            return field_name.chars().nth(0).unwrap().to_ascii_uppercase();
+        }
+    } 
+
+    error::raise(error::Kind::OptionsTooSimilar, field_name.chars().nth(0).unwrap())
 }
 
 fn get_option_from_char( char: char, serialized_struct: String ) -> String {
@@ -73,10 +116,10 @@ fn get_option_from_char( char: char, serialized_struct: String ) -> String {
             }
         }
 
-        panic!("Too many")
+        error::raise(error::Kind::OptionsTooSimilar, char)
         
     } else {
-        panic!("Not found")
+        error::raise(error::Kind::InvalidOption, char)
     }
 }
 
@@ -102,6 +145,10 @@ fn get_serialized_arguments( serialized_struct: String ) -> String {
                         crate::show::version();
     
                     } else {
+                        if !get_struct_fields(serialized_struct.clone()).contains(&argument_name) {
+                            error::raise(error::Kind::InvalidOption, argument_name)
+                        }
+
                         let mut key_string = format!(", \"{}\":", argument_name);
 
                         if is_first_argument {
@@ -154,15 +201,11 @@ fn get_serialized_arguments( serialized_struct: String ) -> String {
     serialized_arguments
 }
 
-pub fn parse_into<T>( config: &mut T )
+pub fn parse_into<T>( args_struct: &mut T )
 where T: Serialize, T: DeserializeOwned, T: std::fmt::Debug {
-    let arguments: Vec<String> = env::args().collect();
-
-    println!("{:?}", arguments);
-
-    let serialized_struct = serde_json::to_string(&config).unwrap();
+    let serialized_struct = serde_json::to_string(&args_struct).unwrap();
     let serialized_arguments = get_serialized_arguments(serialized_struct);
     let deserialized_struct: T = serde_json::from_str(&serialized_arguments).unwrap();
 
-    *config = deserialized_struct;
+    *args_struct = deserialized_struct;
 }
