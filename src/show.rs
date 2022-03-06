@@ -11,7 +11,8 @@ pub enum Color {
     Green,
     Red,
     Yellow,
-    Purple
+    Purple,
+    Cyan
 }
 
 fn get_highlighted_text( formated_text: &str, color: Color ) -> String {
@@ -28,7 +29,8 @@ fn get_highlighted_text( formated_text: &str, color: Color ) -> String {
             Color::Green  => Colorize::green( words[1] ),
             Color::Red    => Colorize::red( words[1] ),
             Color::Yellow => Colorize::yellow( words[1] ),
-            Color::Purple => Colorize::purple( words[1] )
+            Color::Purple => Colorize::purple( words[1] ),
+            Color::Cyan   => Colorize::cyan( words[1] )
         };
 
         text_string = format!( "{}{}{}", words[0].white(), highlighted_word, words[2].white() );
