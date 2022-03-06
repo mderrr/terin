@@ -1,5 +1,5 @@
 use colored::Colorize;
-use std::{io::{stdout, Write}, process::exit};
+use std::{io::{stdout, Write}, process::exit, fmt};
 
 use crate::{info, args, error::Handler};
 
@@ -52,32 +52,36 @@ fn show_message( message: &str, color: Color, print_newline: bool ) {
     }
 }
 
-pub fn error( message: &str ) -> ! {
+pub fn error<T>( message: &T ) -> !
+where T: fmt::Display {
     let pointer = format!("{} {}", "Error", ARROW_CHAR);
 
     show_message( &format!("`{}` {}", pointer.bold(), message), Color::Red, true );
     exit(1)
 }
 
-pub fn warning( message: &str ) {
+pub fn warning<T>( message: &T )
+where T: fmt::Display {
     let pointer = format!("{} {}", "Warning", ARROW_CHAR);
 
     show_message( &format!("`{}` {}", pointer.bold(), message), Color::Yellow, true );
 }
 
-pub fn information( label: &str, message: &str, color: Color ) {
+pub fn information<T>( label: &str, information: T, color: Color )
+where T: fmt::Display {
     let pointer = format!("{} {}", label, ARROW_CHAR);
 
-    show_message( &format!("`{}` {}", pointer.bold(), message), color, true );
+    show_message( &format!("`{}` {}", pointer.bold(), information), color, true );
 }
 
-pub fn data( message: &str, color: Color ) {
-
-    show_message( message, color, true );
+pub fn data<T>( message: &T, color: Color )
+where T: fmt::Display {
+    show_message( &format!("{}", message), color, true );
 }
 
-pub fn title( title: &str, color: Color ) {
-    show_message( &format!("`{}`", title.bold()), color, true );
+pub fn title<T>( title: &T, color: Color )
+where T: fmt::Display {
+    show_message( &format!("`{}`", title).bold(), color, true );
 }
 
 pub fn help( options: Vec<String> ) {
