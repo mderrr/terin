@@ -1,5 +1,5 @@
 use toml;
-use std::{io, fmt, process::exit};
+use std::{io, fmt};
 
 use crate::show;
 

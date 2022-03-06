@@ -72,9 +72,8 @@ pub fn information( label: &str, message: &str, color: Color ) {
 }
 
 pub fn data( message: &str, color: Color ) {
-    let pointer = format!("\t{}", ARROW_CHAR);
 
-    show_message( &format!("`{}` {}", pointer.bold(), message), color, true );
+    show_message( message, color, true );
 }
 
 pub fn title( title: &str, color: Color ) {
