@@ -52,36 +52,36 @@ fn show_message( message: &str, color: Color, print_newline: bool ) {
     }
 }
 
-pub fn error<T>( message: &T ) -> !
-where T: fmt::Display {
+pub fn error<T>( error: &T ) -> !
+where T: ToString {
     let pointer = format!("{} {}", "Error", ARROW_CHAR);
 
-    show_message( &format!("`{}` {}", pointer.bold(), message), Color::Red, true );
+    show_message( &format!("`{}` {}", pointer.bold(), error.to_string()), Color::Red, true );
     exit(1)
 }
 
-pub fn warning<T>( message: &T )
-where T: fmt::Display {
+pub fn warning<T>( warning: &T )
+where T: ToString {
     let pointer = format!("{} {}", "Warning", ARROW_CHAR);
 
-    show_message( &format!("`{}` {}", pointer.bold(), message), Color::Yellow, true );
+    show_message( &format!("`{}` {}", pointer.bold(), warning.to_string()), Color::Yellow, true );
 }
 
 pub fn information<T>( label: &str, information: T, color: Color )
-where T: fmt::Display {
+where T: ToString {
     let pointer = format!("{} {}", label, ARROW_CHAR);
 
-    show_message( &format!("`{}` {}", pointer.bold(), information), color, true );
+    show_message( &format!("`{}` {}", pointer.bold(), information.to_string()), color, true );
 }
 
-pub fn data<T>( message: &T, color: Color )
-where T: fmt::Display {
-    show_message( &format!("{}", message), color, true );
+pub fn data<T>( data: &T, color: Color )
+where T: ToString {
+    show_message( &data.to_string(), color, true );
 }
 
 pub fn title<T>( title: &T, color: Color )
-where T: fmt::Display {
-    show_message( &format!("`{}`", title).bold(), color, true );
+where T: ToString {
+    show_message( &format!("`{}`", title.to_string()).bold(), color, true );
 }
 
 pub fn help( options: Vec<String> ) {
