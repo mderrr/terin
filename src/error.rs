@@ -96,3 +96,20 @@ impl<T> Handler<T> for Result<T, toml::de::Error> {
         result
     }
 }
+
+impl<T> Handler<T> for Result<T, serde_json::Error> {
+    fn handle( self ) -> T {
+        let result: T = match self {
+            Ok(ok) => ok,
+            Err(err) => {
+                let mut error_string = err.to_string().replace("field", "required option");
+                error_string = error_string.split("at line").nth(0).unwrap().to_string();
+
+                show::alert( &error_string );
+                exit(1)
+            }
+        };
+
+        result
+    }
+}

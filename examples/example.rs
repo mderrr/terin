@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 struct Args {
     index: u8,
-    text: String,
+    text: Option<String>,
     count: Option<u8>
 }
 
@@ -12,7 +12,7 @@ impl Args {
     fn new() -> Self {
         Self {
             index: 1,
-            text: "".to_string(),
+            text: Some("test".to_string()),
             count: None
         }
     }

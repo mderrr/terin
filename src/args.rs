@@ -2,7 +2,7 @@ use std::env;
 
 use serde::{Serialize, de::DeserializeOwned};
 
-use crate::error;
+use crate::error::{self, Handler};
 
 pub struct Option {
     pub long: String,
@@ -175,6 +175,12 @@ fn get_serialized_arguments( serialized_struct: String ) -> String {
                     false => format!("\"{}\"", argument)
                 };
 
+                if serialized_arguments.chars().last().is_none() {
+                    // Pass unamed arg to the first field of the strict
+                    let key_string = format!( "\"{}\":", get_struct_fields(serialized_struct.clone())[0] );
+                    serialized_arguments.push_str(&key_string);
+                }    
+
                 if serialized_arguments.chars().last().unwrap() != ',' && index + 2 < arguments.len() && !arguments[index + 2].starts_with("-") {
                     value_string.push_str( &format!(" [{},", parsed_argument) );
                     
@@ -205,7 +211,7 @@ pub fn parse_into<T>( args_struct: &mut T )
 where T: Serialize, T: DeserializeOwned, T: std::fmt::Debug {
     let serialized_struct = serde_json::to_string(&args_struct).unwrap();
     let serialized_arguments = get_serialized_arguments(serialized_struct);
-    let deserialized_struct: T = serde_json::from_str(&serialized_arguments).unwrap();
+    let deserialized_struct: T = serde_json::from_str(&serialized_arguments).handle();
 
     *args_struct = deserialized_struct;
 }
