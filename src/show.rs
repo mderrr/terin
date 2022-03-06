@@ -52,10 +52,11 @@ fn show_message( message: &str, color: Color, print_newline: bool ) {
     }
 }
 
-pub fn alert( message: &str ) {
+pub fn error( message: &str ) -> ! {
     let pointer = format!("{} {}", "Error", ARROW_CHAR);
 
     show_message( &format!("`{}` {}", pointer.bold(), message), Color::Red, true );
+    exit(1)
 }
 
 pub fn warning( message: &str ) {
