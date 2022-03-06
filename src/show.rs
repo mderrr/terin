@@ -1,5 +1,5 @@
 use colored::Colorize;
-use std::{io::{stdout, Write}, process::exit, fmt};
+use std::{io::{stdout, Write}, process::exit};
 
 use crate::{info, args, error::Handler};
 
@@ -52,7 +52,7 @@ fn show_message( message: &str, color: Color, print_newline: bool ) {
     }
 }
 
-pub fn error<T>( error: &T ) -> !
+pub fn error<T>( error: T ) -> !
 where T: ToString {
     let pointer = format!("{} {}", "Error", ARROW_CHAR);
 
@@ -60,7 +60,7 @@ where T: ToString {
     exit(1)
 }
 
-pub fn warning<T>( warning: &T )
+pub fn warning<T>( warning: T )
 where T: ToString {
     let pointer = format!("{} {}", "Warning", ARROW_CHAR);
 
@@ -74,12 +74,12 @@ where T: ToString {
     show_message( &format!("`{}` {}", pointer.bold(), information.to_string()), color, true );
 }
 
-pub fn data<T>( data: &T, color: Color )
+pub fn data<T>( data: T, color: Color )
 where T: ToString {
     show_message( &data.to_string(), color, true );
 }
 
-pub fn title<T>( title: &T, color: Color )
+pub fn title<T>( title: T, color: Color )
 where T: ToString {
     show_message( &format!("`{}`", title.to_string()).bold(), color, true );
 }
