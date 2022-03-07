@@ -22,8 +22,8 @@ pub struct Cargo {
     pub package: Package
 }
 
-pub fn get() -> Package {
-    let cargo_string = fs::read_to_string("Cargo.toml").handle();
+pub fn get( cargo_bytes: &[u8] ) -> Package {
+    let cargo_string = String::from_utf8_lossy( cargo_bytes );
     let cargo: Cargo = toml::from_str(&cargo_string).handle();
 
     cargo.package

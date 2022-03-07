@@ -85,7 +85,7 @@ where T: ToString {
 }
 
 pub fn help( options: Vec<String> ) {
-    let info = info::get();
+    let info = info::get(include_bytes!("../Cargo.toml"));
 
     let (title, default_argument) = info.get_metadata();
 
@@ -132,7 +132,7 @@ pub fn help( options: Vec<String> ) {
 }
 
 pub fn version() {
-    let info = info::get();
+    let info = info::get(include_bytes!("../Cargo.toml"));
 
     let title = match info.metadata {
         Some(metadata) => match metadata.title {
