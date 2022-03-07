@@ -123,7 +123,7 @@ fn get_option_from_char( char: char, serialized_struct: String ) -> String {
     }
 }
 
-fn get_serialized_arguments( serialized_struct: String ) -> String {
+fn get_serialized_arguments( serialized_struct: String, cargo_bytes: &[u8] ) -> String {
     let arguments: Vec<String> = env::args().collect();
 
     let mut serialized_arguments = String::new();
@@ -139,10 +139,10 @@ fn get_serialized_arguments( serialized_struct: String ) -> String {
 
                 for argument_name in argument_names {
                     if argument_name == "help" {
-                        crate::show::help( get_options_from_struct(serialized_struct.clone()) );
+                        crate::show::help( get_options_from_struct(serialized_struct.clone()), cargo_bytes );
                         
                     } else if argument_name == "version" {
-                        crate::show::version();
+                        crate::show::version(cargo_bytes);
     
                     } else {
                         if !get_struct_fields(serialized_struct.clone()).contains(&argument_name) {
@@ -207,10 +207,10 @@ fn get_serialized_arguments( serialized_struct: String ) -> String {
     serialized_arguments
 }
 
-pub fn parse_into<T>( args_struct: &mut T )
+pub fn parse_into<T>( args_struct: &mut T, cargo_bytes: &[u8] )
 where T: Serialize, T: DeserializeOwned, T: std::fmt::Debug {
     let serialized_struct = serde_json::to_string(&args_struct).unwrap();
-    let serialized_arguments = get_serialized_arguments(serialized_struct);
+    let serialized_arguments = get_serialized_arguments(serialized_struct, cargo_bytes);
     let deserialized_struct: T = serde_json::from_str(&serialized_arguments).handle();
 
     *args_struct = deserialized_struct;

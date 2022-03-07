@@ -21,6 +21,6 @@ impl Args {
 fn main() {
     let mut args = Args::new();
 
-    args::parse_into(&mut args);
+    args::parse_into(&mut args, include_bytes!("../Cargo.toml"));
     show::information("Parsed args", &format!("{:?}", args), show::Color::Red) ;
 }
