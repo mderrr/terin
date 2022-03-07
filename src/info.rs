@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::fs;
 
 use crate::error::Handler;
 
@@ -22,7 +23,7 @@ pub struct Cargo {
 }
 
 pub fn get() -> Package {
-    let cargo_string = String::from_utf8_lossy( include_bytes!("../Cargo.toml") );
+    let cargo_string = fs::read_to_string("Cargo.toml").handle();
     let cargo: Cargo = toml::from_str(&cargo_string).handle();
 
     cargo.package

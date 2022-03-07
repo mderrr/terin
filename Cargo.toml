@@ -1,8 +1,10 @@
 [package]
 name = "terin"
 description = "a Rust library for the creation of cli applications"
-version = "0.3.4"
+version = "0.3.5"
 edition = "2021"
+readme = "README.md"
+license = "MIT"
 
 [package.metadata]
 title = "TerIn"
