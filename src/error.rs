@@ -1,5 +1,5 @@
 use toml;
-use std::{io, fmt};
+use std::{io, fmt, string};
 
 use crate::show;
 
@@ -103,6 +103,19 @@ impl<T> Handler<T> for Result<T, serde_json::Error> {
                 error_string = error_string.split("at line").nth(0).unwrap().to_string();
 
                 show::error( &error_string )
+            }
+        };
+
+        result
+    }
+}
+
+impl<T> Handler<T> for Result<T, string::FromUtf8Error> {
+    fn handle( self ) -> T {
+        let result: T = match self {
+            Ok(ok) => ok,
+            Err(err) => {
+                show::error( &err.to_string() )
             }
         };
 
